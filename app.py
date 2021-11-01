@@ -173,7 +173,7 @@ def update_device_scope():
                          "Authorization": f"Bearer {auth_token}"
         }
         try:
-            add_scope = requests.request("PUT", prestage_add_url, headers=prestage_headers, data=payload)
+            add_scope = requests.request("POST", prestage_add_url, headers=prestage_headers, data=payload)
             add_scope.raise_for_status()
             return json.dumps({'text': f'Prestage enrollment for {serial} modifed.'})
         except requests.exceptions.RequestException:
