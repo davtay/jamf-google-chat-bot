@@ -1,4 +1,6 @@
-Google Chat bot for a growing list of tasks in Jamf Pro.
+[![pylint](https://github.com/davtay/jamf-google-chat-bot/actions/workflows/pylint.yml/badge.svg)](https://github.com/davtay/jamf-google-chat-bot/actions/workflows/pylint.yml)
+
+# Google Chat bot for a growing list of tasks in Jamf Pro.
 
 Current implementation has the following slash commands:
 
