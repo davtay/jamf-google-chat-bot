@@ -5,13 +5,15 @@ import requests, json, os, sys
 app = Flask(__name__)
 
 @app.route('/', methods = ['POST'])
-def update_device_scope(request):
+def main(request):
     
     ## Get the enviornment variables
     url = os.environ['URL']
     encoded_creds = os.environ["ENCODED"]
     audience = os.environ["AUDIENCE"]
     card_image = os.environ["IMAGE"]
+    prestage1 = os.environ["PS1"]
+    prestage2 = os.environ["PS2"]
     
     ## Define functions
     
@@ -69,6 +71,13 @@ def update_device_scope(request):
         token = requests.request("POST", auth_url, headers=auth_headers)
         token = json.loads(token.text)
         return token["token"]
+    
+    ## Invalidate token when done
+    def invalidate_token(token):
+        invalidate_url = f"{url}/api/auth/invalidateToken"
+        invalidate_headers = { 'Authorization': f'Bearer {auth_token}'}
+        response = requests.request("POST", invalidate_url, headers=invalidate_headers)
+        return response
     
     ## Get versionLock by making GET request
     def version_lock(id):
@@ -207,6 +216,7 @@ def update_device_scope(request):
                 return json.dumps({'text': 'Device successfully removed'})
             else:
                 return json.dumps({'text': 'That device does not exist.'})
+        invalidate_token(auth_token)
 
 if __name__ == '__main__':
     app.run(port=8080, debug=True)
