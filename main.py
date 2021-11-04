@@ -5,13 +5,13 @@ import requests, json, os, sys
 app = Flask(__name__)
 
 @app.route('/', methods = ['POST'])
-def update_device_scope():
+def update_device_scope(request):
     
     ## Get the enviornment variables
-    url = os.environ('URL')
-    encoded_creds = os.environ("ENCODED")
-    audience = os.environ("AUDIENCE")
-    card_image = os.environ("IMAGE")
+    url = os.environ['URL']
+    encoded_creds = os.environ["ENCODED"]
+    audience = os.environ["AUDIENCE"]
+    card_image = os.environ["IMAGE"]
     
     ## Define functions
     
