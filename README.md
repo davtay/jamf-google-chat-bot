@@ -2,14 +2,14 @@
 
 # Google Chat bot for a growing list of tasks in Jamf Pro.
 
-Current implementation has the following slash commands:
+Current implementation supports slash commands for the following endpoints:
 
 <ul>
-    <li>/info</li>
-    <li>/prestage</li>
-    <li>/remove</li>
+    <li>/api/v1/computers-inventory?section=GENERAL&section=HARDWARE&section=OPERATING_SYSTEM&section=STORAGE&page=0&page-size=100&sort=id:asc&filter=hardware.serialNumber=={serial}</li>
+    <li>/api/v2/computer-prestages/{id}/scope and /api/v2/computer-prestages/{old_id}/scope/delete-multiple using POST</li>
+    <li>/api/v1/computers-inventory/{id} with DELETE</li>
 </ul>
 
-/info accepts a serial number and displays some relevant information about the device.  
-/prestage accepts a serial number and prestage alias of staff or student which should be customized for your prestage enrollments.  
-/remove accepts a serial number and deletes the device record.
+Slash Command #1 requires a serial number.  
+Slash Command #2 requires a serial number and prestage alias, which is set as envioronment variables.  
+Slash Command #3 requires a serial number.
