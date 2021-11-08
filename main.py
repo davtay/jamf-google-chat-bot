@@ -58,6 +58,8 @@ def main(request):
                     slash_command = 2
                 elif event['message']['slashCommand']['commandId'] == "3":
                     slash_command = 3
+                elif event['message']['slashCommand']['commandId'] == "4":
+                    slash_command = 4
                 return serial, id, slash_command, user
             elif event['message']['annotations'][0]['type'] == 'USER_MENTION':
                 return "DM", 0, 0, user
@@ -169,7 +171,7 @@ def main(request):
         return remove_scope.status_code, reason
     
     ## Add device to prestage enrollment
-    def add_device_scope(serial, id):
+    def add_device_scope(serial, id) -> None:
         version_lock_num = version_lock(id)
         prestage_add_url = f"{url}/api/v2/computer-prestages/{id}/scope"
         payload = json.dumps({
@@ -188,6 +190,47 @@ def main(request):
         except requests.exceptions.RequestException:
             return json.dumps({'text': f'Sorry, something went wrong. {status}'})
     
+    def get_mobile_device_details(serial) -> None:
+        mobile_device_url = f'{url}/api//v2/mobile-devices?&sort=id:asc'
+        mobile_device_headers = { 'Authorization': f'Bearer {auth_token}'}
+        devices = requests.request("GET", mobile_device_url, headers=mobile_device_headers)
+        mobile_devices = devices.json()
+        for keyval in mobile_devices['results']:
+            if serial == keyval['serialNumber']:
+                id = keyval['id']
+        mobile_device_details_url = f'{url}/api/v2/mobile-devices/{id}/detail'
+        device_details = requests.request("GET", mobile_device_details_url, headers=mobile_device_headers)
+        device = device_details.json()
+        device_asset_tag = device['assetTag']
+        if device['type'] == 'ios':
+            device_model = device['ios']['model']
+            device_os = 'iOS ' + device['osVersion']
+            device_storage_total = device['ios']['capacityMb'] // 1024
+            device_storage_free = device['ios']['availableMb'] // 1024
+            device_mac_address = device['wifiMacAddress']
+            device_last_contact_time = device['lastInventoryUpdateTimestamp'][:10]
+            device_enrollment_method = device['enrollmentMethod'] 
+        return json.dumps({
+            'cards': [
+                {
+                    'header': {
+                        'title': f'{serial}',
+                        'imageUrl': card_image
+                    },
+                    'sections': [
+                        {
+                        'widgets': [
+                            {
+                                'textParagraph': {
+                                    'text': f'Asset Tag: {device_asset_tag}<br>Hardware: {device_model}<br>OS Version: {device_os}<br>Enrollment Method: {device_enrollment_method}<br>Storage Capacity: {device_storage_total} GB<br>Storage Available: {device_storage_free} GB<br>Mac Address: {device_mac_address}<br>Last Check-in Date: {device_last_contact_time}'
+                                    }
+                                }
+                            ]
+                        }   
+                    ]
+                }
+            ]})
+
     ## Function calls
     
     serial, id, slash_command, user = on_event()
@@ -216,6 +259,8 @@ def main(request):
                 return json.dumps({'text': 'Device successfully removed'})
             else:
                 return json.dumps({'text': 'That device does not exist.'})
+        elif slash_command == 4:
+            return get_mobile_device_details(serial)
         invalidate_token(auth_token)
 
 if __name__ == '__main__':
